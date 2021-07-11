@@ -1,9 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
-
+import { customGetAsyncStorage } from '../../hooks/customHooks';
 import { SearchBar } from '../../components/SearchBar';
 import { LoginDataItem } from '../../components/LoginDataItem';
+import { useTheme } from 'styled-components'
 
 import {
   Container,
@@ -22,38 +22,44 @@ interface LoginDataProps {
 type LoginListDataProps = LoginDataProps[];
 
 export function Home() {
+  const theme = useTheme()
+
   const [searchListData, setSearchListData] = useState<LoginListDataProps>([]);
   const [data, setData] = useState<LoginListDataProps>([]);
 
-  async function loadData() {
-    const dataKey = "@passmanager:logins"
-    const dataLoaded = await AsyncStorage.getItem(dataKey)
-    const result = dataLoaded ? JSON.parse(dataLoaded) : []
-
-    setData(result)
-    setSearchListData(result)
-  }
-  
   useEffect(() => {
-    loadData();
+    customGetAsyncStorage().then(response => {
+      setData(response);
+    })
   }, []);
 
+  useEffect(() => {
+    customGetAsyncStorage().then(response => {
+      setSearchListData(response);
+    })
+  }, []);
+  
   useFocusEffect(useCallback(() => {
-    loadData();
+    customGetAsyncStorage().then(response => {
+      setData(response);
+    })
+  }, []));
+
+  useFocusEffect(useCallback(() => {
+    customGetAsyncStorage().then(response => {
+      setSearchListData(response);
+    })
   }, []));
 
   function handleFilterLoginData(search: string) {
-    const result: LoginListDataProps = data.filter((el: LoginDataProps) => {
-      if (el.title.includes(search)) {
-        return {...el}
-      }
-    })
+    const result: LoginListDataProps = data.filter((el: LoginDataProps) => el.title === search)
 
-    setSearchListData(result)
+    if (result) return setSearchListData(result)
+    return 
  }
 
   return (
-    <Container>
+    <Container background={theme.colors.background}>
       <SearchBar
         placeholder="Pesquise pelo nome do serviço"
         onChangeText={(value) => handleFilterLoginData(value)}

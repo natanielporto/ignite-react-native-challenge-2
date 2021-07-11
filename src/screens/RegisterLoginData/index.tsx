@@ -1,10 +1,9 @@
 import React from 'react';
-import { Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { KeyboardAvoidingView, Platform } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { RFValue } from 'react-native-responsive-fontsize';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import uuid from 'react-native-uuid';
 
 import { Input } from '../../components/Form/Input';
@@ -15,6 +14,7 @@ import {
   HeaderTitle,
   Form
 } from './styles';
+import { customSetAsyncStorage } from '../../hooks/customHooks';
 
 interface FormData {
   title: string;
@@ -44,19 +44,8 @@ export function RegisterLoginData() {
       ...formData
     }
 
-    try {
-      const dataKey = "@passmanager:logins"
-      const data = await AsyncStorage.getItem(dataKey)
-      const currentData = data ? JSON.parse(data) : []
-      
-      const newData = [...currentData, newLoginData]
-      
-      await AsyncStorage.setItem(dataKey, JSON.stringify(newData))
-      reset()
-    } catch (err) {
-      console.log(err)
-      Alert.alert('Erro no preenchimento das informações.')
-    }
+    reset()
+    return customSetAsyncStorage(newLoginData)
   }
 
   return (

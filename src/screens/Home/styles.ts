@@ -1,8 +1,10 @@
 import styled from 'styled-components/native';
 import { FlatList } from 'react-native';
-
 import { RFValue } from 'react-native-responsive-fontsize';
 
+interface ContainerProps {
+  background: string;
+}
 interface LoginListDataProps {
   id: string;
   title: string;
@@ -10,9 +12,10 @@ interface LoginListDataProps {
   password: string;
 }
 
-export const Container = styled.View`
+export const Container = styled.View<ContainerProps>`
   flex: 1;
-  background-color: #4E3975;
+  /* background-color: #4E3975; */
+  background-color: ${({theme}) => theme.colors.background};
   padding: 0 27px;
 `;
 
